@@ -1,10 +1,7 @@
-import {
-  BadRequestException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -18,8 +15,8 @@ export class AuthService {
     if (!user) {
       throw new BadRequestException('Email ou senha inválidos');
     }
-    if (user?.password !== pass) {
-      console.log(user?.password, pass);
+    const isMatchPassword = await bcrypt.compare(pass, user.password);
+    if (isMatchPassword) {
       throw new BadRequestException('Email ou senha inválidos');
     }
     const payload = { name: user.name, sub: user.id };
