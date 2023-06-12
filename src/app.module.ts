@@ -24,8 +24,8 @@ import { JwtModule } from '@nestjs/jwt';
           password: configService.get('database.password'),
           database: configService.get('database.name'),
           synchronize: true,
+          entities: [],
           autoLoadEntities: true,
-          migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
         };
       },
       inject: [ConfigService],
