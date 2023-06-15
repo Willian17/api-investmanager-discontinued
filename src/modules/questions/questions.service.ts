@@ -20,6 +20,8 @@ export class QuestionsService {
       .where('questions.idUser = :idUser', { idUser })
       .groupBy('questions.category')
       .getRawMany();
+
+    console.log(questions);
     const questionsCategory = [
       {
         category: CategoryQuestionEnum.ACOES_NACIONAIS,
@@ -35,7 +37,8 @@ export class QuestionsService {
         quantity:
           +questions.find(
             (question) =>
-              question.category === CategoryQuestionEnum.ACOES_INTERNACIONAIS,
+              question.questions_category ===
+              CategoryQuestionEnum.ACOES_INTERNACIONAIS,
           )?.quantity || 0,
       },
       {
@@ -43,14 +46,16 @@ export class QuestionsService {
         quantity:
           +questions.find(
             (question) =>
-              question.category === CategoryQuestionEnum.FUNDOS_IMOBILIARIOS,
+              question.questions_category ===
+              CategoryQuestionEnum.FUNDOS_IMOBILIARIOS,
           )?.quantity || 0,
       },
       {
         category: CategoryQuestionEnum.REITS,
         quantity:
           +questions.find(
-            (question) => question.category === CategoryQuestionEnum.REITS,
+            (question) =>
+              question.questions_category === CategoryQuestionEnum.REITS,
           )?.quantity || 0,
       },
     ];
@@ -82,7 +87,8 @@ export class QuestionsService {
     }
     questionFind.question = question;
     questionFind.criterion = criterion;
-    return await this.questionsRepository.update(id, questionFind);
+    await this.questionsRepository.update(id, questionFind);
+    return questionFind;
   }
 
   async delete({ id, idUser }) {
@@ -93,6 +99,7 @@ export class QuestionsService {
     if (!questionFind) {
       throw new NotFoundException('Critério não encontrado');
     }
-    return await this.questionsRepository.delete(id);
+    await this.questionsRepository.delete(id);
+    return questionFind;
   }
 }

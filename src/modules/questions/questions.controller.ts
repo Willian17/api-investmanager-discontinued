@@ -6,7 +6,6 @@ import {
   Post,
   Put,
   Request,
-  Res,
   Response,
 } from '@nestjs/common';
 import { QuestionsService } from './questions.service';
@@ -18,51 +17,58 @@ export class QuestionsController {
   constructor(private questionsService: QuestionsService) {}
 
   @Get()
-  async findAll(@Request() req) {
-    const idUser = req.user.sub;
-    return await this.questionsService.findAll(idUser);
+  async findAll(@Request() request, @Response() response) {
+    const idUser = request.user.sub;
+    const questions = await this.questionsService.findAll(idUser);
+    return response.status(200).json(questions);
   }
 
   @Get('category/:category')
-  async findByCategory(@Request() req) {
-    const idUser = req.user.sub;
-    const { category } = req.params;
-    return await this.questionsService.findByCategory({ idUser, category });
+  async findByCategory(@Request() request, @Response() response) {
+    const idUser = request.user.sub;
+    const { category } = request.params;
+    const questions = await this.questionsService.findByCategory({
+      idUser,
+      category,
+    });
+    return response.status(200).json(questions);
   }
 
   @Post()
   async create(
-    @Request() req,
+    @Request() request,
     @Body() createQuestionDto: CreateQuestionRequestDTO,
+    @Response() response,
   ) {
-    const idUser = req.user.sub;
-    return await this.questionsService.create({
+    const idUser = request.user.sub;
+    const questionCreated = await this.questionsService.create({
       ...createQuestionDto,
       idUser,
     });
+    return response.status(200).json(questionCreated);
   }
 
   @Put('/:id')
   async update(
-    @Request() req,
+    @Request() request,
     @Body() updateQuestionDto: UpdateQuestionRequestDTO,
-    @Response() res,
+    @Response() response,
   ) {
-    const idUser = req.user.sub;
-    const { id } = req.params;
-    await this.questionsService.update({
+    const idUser = request.user.sub;
+    const { id } = request.params;
+    const questionUpdate = await this.questionsService.update({
       ...updateQuestionDto,
       id,
       idUser,
     });
-    res.status(204).send();
+    return response.status(200).json(questionUpdate);
   }
 
   @Delete('/:id')
-  async delete(@Request() req, @Response() res) {
-    const idUser = req.user.sub;
-    const { id } = req.params;
-    await this.questionsService.delete({ id, idUser });
-    return res.status(204).send();
+  async delete(@Request() request, @Response() response) {
+    const idUser = request.user.sub;
+    const { id } = request.params;
+    const question = await this.questionsService.delete({ id, idUser });
+    return response.status(200).json(question);
   }
 }
