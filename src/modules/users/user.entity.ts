@@ -1,3 +1,4 @@
+import { Marks } from './../marks/marks.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Question } from '../questions/question.entity';
 
@@ -17,4 +18,7 @@ export class User {
 
   @OneToMany(() => Question, (question) => question.user)
   questions: Question[];
+
+  @OneToMany(() => Marks, (marks) => marks.user)
+  marks: Marks[];
 }

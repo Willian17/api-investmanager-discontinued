@@ -21,7 +21,6 @@ export class QuestionsService {
       .groupBy('questions.category')
       .getRawMany();
 
-    console.log(questions);
     const questionsCategory = [
       {
         category: CategoryQuestionEnum.ACOES_NACIONAIS,
