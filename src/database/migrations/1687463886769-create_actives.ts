@@ -5,11 +5,11 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-export class CreateMarks1687105099025 implements MigrationInterface {
+export class CreateActives1687463886769 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'marks',
+        name: 'actives',
         columns: [
           {
             name: 'id',
@@ -25,9 +25,24 @@ export class CreateMarks1687105099025 implements MigrationInterface {
             isNullable: false,
           },
           {
-            name: 'percentage',
-            type: 'int',
+            name: 'name',
+            type: 'varchar',
             isNullable: false,
+          },
+          {
+            name: 'amount',
+            type: 'decimal',
+            isNullable: false,
+          },
+          {
+            name: 'currentValue',
+            type: 'decimal',
+            isNullable: true,
+          },
+          {
+            name: 'note',
+            type: 'int',
+            isNullable: true,
           },
           {
             name: 'idUser',
@@ -37,20 +52,21 @@ export class CreateMarks1687105099025 implements MigrationInterface {
         ],
       }),
     );
+
     await queryRunner.createForeignKey(
-      'marks',
+      'actives',
       new TableForeignKey({
         columnNames: ['idUser'],
         referencedColumnNames: ['id'],
         referencedTableName: 'users',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
-        name: 'user_marks',
+        name: 'user_activies',
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('marks');
+    await queryRunner.dropTable('actives');
   }
 }

@@ -9,6 +9,8 @@ import { AuthGuard } from './modules/auth/auth.guard';
 import { JwtModule } from '@nestjs/jwt';
 import { QuestionsModule } from './modules/questions/questions.module';
 import { MarksModule } from './modules/marks/marks.module';
+import { ActivesModule } from './modules/actives/actives.module';
+import { AnswersModule } from './modules/answers/answers.module';
 
 @Module({
   imports: [
@@ -37,6 +39,8 @@ import { MarksModule } from './modules/marks/marks.module';
     JwtModule,
     QuestionsModule,
     MarksModule,
+    ActivesModule,
+    AnswersModule,
   ],
   controllers: [],
   providers: [

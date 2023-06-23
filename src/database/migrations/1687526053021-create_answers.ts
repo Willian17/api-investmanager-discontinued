@@ -5,11 +5,11 @@ import {
   TableForeignKey,
 } from 'typeorm';
 
-export class CreateMarks1687105099025 implements MigrationInterface {
+export class CreateAnswers1687526053021 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.createTable(
       new Table({
-        name: 'marks',
+        name: 'answers',
         columns: [
           {
             name: 'id',
@@ -19,38 +19,51 @@ export class CreateMarks1687105099025 implements MigrationInterface {
             default: 'uuid_generate_v4()',
           },
           {
-            name: 'category',
-            type: 'enum',
-            enum: ['AN', 'AI', 'FI', 'RT', 'RF', 'CM'],
+            name: 'response',
+            type: 'boolean',
+            isNullable: false,
+            default: false,
+          },
+          {
+            name: 'idActive',
+            type: 'varchar',
             isNullable: false,
           },
           {
-            name: 'percentage',
-            type: 'int',
-            isNullable: false,
-          },
-          {
-            name: 'idUser',
+            name: 'idQuestion',
             type: 'uuid',
             isNullable: false,
           },
         ],
       }),
     );
+
     await queryRunner.createForeignKey(
-      'marks',
+      'answers',
       new TableForeignKey({
-        columnNames: ['idUser'],
+        columnNames: ['idActive'],
         referencedColumnNames: ['id'],
-        referencedTableName: 'users',
+        referencedTableName: 'actives',
         onDelete: 'CASCADE',
         onUpdate: 'CASCADE',
-        name: 'user_marks',
+        name: 'active_answers',
+      }),
+    );
+
+    await queryRunner.createForeignKey(
+      'answers',
+      new TableForeignKey({
+        columnNames: ['idQuestion'],
+        referencedColumnNames: ['id'],
+        referencedTableName: 'questions',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
+        name: 'question_answers',
       }),
     );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.dropTable('marks');
+    await queryRunner.dropTable('answers');
   }
 }

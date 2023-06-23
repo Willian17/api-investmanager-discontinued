@@ -3,9 +3,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../users/user.entity';
+import { Answers } from '../answers/answers.entify';
 
 export enum CategoryQuestionEnum {
   ACOES_NACIONAIS = 'AN',
@@ -34,4 +36,7 @@ export class Question {
   @ManyToOne(() => User, (user) => user.questions)
   @JoinColumn({ name: 'idUser' })
   user: User;
+
+  @OneToMany(() => Answers, (answers) => answers.question)
+  answers: Answers[];
 }
