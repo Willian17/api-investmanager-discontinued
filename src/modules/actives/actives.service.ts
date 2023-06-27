@@ -53,6 +53,12 @@ export class ActivesService {
   }
 
   async create(body: CreateActiveRequestDto, idUser: string) {
+    const activeExists = await this.activeRepository.findOne({
+      where: { name: body.name, category: body.category, idUser },
+    });
+    if (activeExists) {
+      throw new BadRequestException('Ativo já cadastrado!');
+    }
     if (body.category === CategoryEnum.RENDA_FIXA) {
       const active = this.activeRepository.create({
         name: body.name,
@@ -78,6 +84,11 @@ export class ActivesService {
       const activeCreated = await this.activeRepository.save(active);
       return activeCreated;
     }
+
+    if (!body.answers) {
+      throw new BadRequestException('Respostas é obrigatório!');
+    }
+
     const active = this.activeRepository.create({
       name: body.name,
       amount: body.amount,
