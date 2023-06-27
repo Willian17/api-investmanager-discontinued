@@ -2,10 +2,20 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { MarketService } from './market.service';
 import { CategoryEnum } from '../marks/marks.entity';
 import { AxiosResponse } from 'axios';
+import { CreateActiveRequestDto } from './dtos/CreateActiveRequestDto';
+import { Actives } from './actives.entity';
+import { Repository } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { AnswersService } from '../answers/answers.service';
 
 @Injectable()
 export class ActivesService {
-  constructor(private marketService: MarketService) {}
+  constructor(
+    @InjectRepository(Actives)
+    private activeRepository: Repository<Actives>,
+    private marketService: MarketService,
+    private answersService: AnswersService,
+  ) {}
   async findTicker(ticker: string, category: string) {
     if (!ticker) {
       throw new BadRequestException('Ticker é obrigatório!');
@@ -20,8 +30,6 @@ export class ActivesService {
       } else {
         response = await this.marketService.getAvailableTicker(ticker);
       }
-
-      console.log(response.data);
 
       const tickers = {
         tickers: Object.values(response.data).reduce(
@@ -42,5 +50,47 @@ export class ActivesService {
       }
       throw new BadRequestException('Erro ao buscar ticker!');
     }
+  }
+
+  async create(body: CreateActiveRequestDto, idUser: string) {
+    if (body.category === CategoryEnum.RENDA_FIXA) {
+      const active = this.activeRepository.create({
+        name: body.name,
+        amount: body.amount || 1,
+        category: body.category,
+        currentValue: body.currentValue,
+        note: body.note,
+        idUser,
+      });
+
+      const activeCreated = await this.activeRepository.save(active);
+      return activeCreated;
+    }
+    if (body.category === CategoryEnum.CRIPTO_MOEDA) {
+      const active = this.activeRepository.create({
+        name: body.name,
+        amount: body.amount,
+        category: body.category,
+        note: body.note,
+        idUser,
+      });
+
+      const activeCreated = await this.activeRepository.save(active);
+      return activeCreated;
+    }
+    const active = this.activeRepository.create({
+      name: body.name,
+      amount: body.amount,
+      category: body.category,
+      idUser,
+    });
+
+    const activeCreated = await this.activeRepository.save(active);
+    const answers = body.answers.map((answer) => ({
+      ...answer,
+      idActive: activeCreated.id,
+    }));
+    await this.answersService.create(answers);
+    return activeCreated;
   }
 }

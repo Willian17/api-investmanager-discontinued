@@ -5,9 +5,10 @@ import { ActivesService } from './actives.service';
 import { HttpModule } from '@nestjs/axios';
 import { ActivesController } from './actives.controller';
 import { MarketService } from './market.service';
+import { AnswersModule } from '../answers/answers.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Actives]), HttpModule],
+  imports: [TypeOrmModule.forFeature([Actives]), HttpModule, AnswersModule],
   providers: [ActivesService, MarketService],
   controllers: [ActivesController],
 })

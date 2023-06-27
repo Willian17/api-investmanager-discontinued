@@ -21,22 +21,28 @@ export class Actives {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ type: 'decimal' })
   amount: number;
 
-  @Column()
+  @Column({ nullable: true, type: 'decimal' })
   currentValue?: number;
 
-  @Column()
+  @Column({ nullable: true })
   note?: number;
 
   @Column({ foreignKeyConstraintName: 'user_actives', select: false })
   idUser: string;
 
-  @ManyToOne(() => User, (user) => user.actives)
+  @ManyToOne(() => User, (user) => user.actives, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'idUser' })
   user: User;
 
-  @OneToMany(() => Answers, (answers) => answers.active)
+  @OneToMany(() => Answers, (answers) => answers.active, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   answers: Answers[];
 }

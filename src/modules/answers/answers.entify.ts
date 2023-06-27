@@ -22,11 +22,17 @@ export class Answers {
   @Column({ foreignKeyConstraintName: 'question_answers' })
   idQuestion: string;
 
-  @ManyToOne(() => Actives, (active) => active.answers)
+  @ManyToOne(() => Actives, (active) => active.answers, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'idActive' })
   active: Actives;
 
-  @ManyToOne(() => Question, (question) => question.answers)
+  @ManyToOne(() => Question, (question) => question.answers, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   @JoinColumn({ name: 'idQuestion' })
   question: Question;
 }
