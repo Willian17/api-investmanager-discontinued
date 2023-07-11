@@ -1,73 +1,103 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+<h1 align="center"> API InvestManager </h1>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+  <p align="center">
+    <img alt="Last commit" src="https://img.shields.io/github/last-commit/Willian17/api-investmanager">
+    <img alt="stars" src="https://img.shields.io/github/stars/Willian17/api-investmanager?logo=github">
+    <img alt="size" src="https://img.shields.io/github/repo-size/Willian17/api-investmanager">
+    <img alt="license" src="https://img.shields.io/github/license/Willian17/api-investmanager">
+  </p>
+  
+  <p align="center">
+    <a href="#sobre">Sobre</a> •
+    <a href="#funcionalidades">Funcionalidades</a> •
+    <a href="#executar">Executar</a> •
+    <a href="#tecnologias">Tecnologias</a> •
+    <a href="#contribuidores">Contribuidores</a> •
+    <a href="#contribuir">Contribuir</a> •
+    <a href="#licenca">Licença</a>
+  </p>
+  
+  [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#sobre-o-projeto)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+  ## :pushpin: Sobre o Projeto <a name="sobre"></a>
+  <div>
+  <p>Bem-vindo ao repositório de backend/API de rebalanceamento de carteira de investimento! Aqui, você encontrará uma solução inovadora que visa otimizar seus investimentos por meio de um processo inteligente de realocação de ativos. 
+    <br>
+      Nosso objetivo é proporcionar a você uma ferramenta sofisticada e confiável que automatiza o rebalanceamento de sua carteira de investimentos, garantindo que sua alocação de ativos esteja sempre alinhada com seus objetivos financeiros e tolerância ao risco. Combinando tecnologia de ponta e algoritmos inteligentes, nossa API oferece uma maneira eficiente de maximizar os retornos de sua carteira, reduzindo o risco e mantendo um portfólio diversificado.</p>
+  <img src="https://static.todamateria.com.br/upload/ex/em/exemplodegrafico-0.jpg" width="400px">
+  </div>
+  
+  [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#funcionalidades)
 
-## Description
+  ## :rocket: Funcionalidades <a name="funcionalidades"></a>
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+  - [x] Autenticação
+ - [x] Gerenciar ativos
+ - [x] Definir metas da classe do ativo
+ - [x] Definir critérios de analise de ativo
+ - [x] Definir em quais ativos aportar a partir do valor de aporte
+  
+  [![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#executar)
 
-## Installation
+  ## :construction_worker: Como executar <a name="executar"></a>
 
-```bash
-$ yarn install
-```
+  ### Pré-requisitos
+  Ter o <a href="https://nodejs.org/en/">Node.js</a> instalado na maquina.
+  
+  ### Clonar Repositório
+  $ git clone https://github.com/Willian17/api-investmanager.git
+  
+  ### Instalar Dependencias
+  ```
+  $ npm install
+  ```
+  ### Executar Aplicação
+  ```
+  $ npm run start:dev
+  ```
 
-## Running the app
+  
 
-```bash
-# development
-$ yarn run start
+[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](##tecnologias)
 
-# watch mode
-$ yarn run start:dev
+## :computer: Tecnologias <a name="tecnologias"></a>
+<ul>
+<li>NodeJS</li>
+<li>NestJS</li>
+<li>Typeorm</li>
+<li>PostgreSQL</li>
+</ul>
 
-# production mode
-$ yarn run start:prod
-```
+![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)
 
-## Test
+## 🤝 Contribuidores <a name="contribuidores"></a>
 
-```bash
-# unit tests
-$ yarn run test
+Agradecemos às seguintes pessoas que contribuíram para este projeto:
 
-# e2e tests
-$ yarn run test:e2e
+<a href = "https://github.com/Willian17/api-investmanager/graphs/contributors">
+  <img src = "https://contrib.rocks/image?repo=Willian17/api-investmanager"/>
+</a>
 
-# test coverage
-$ yarn run test:cov
-```
 
-## Support
+[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#contribuidores)
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## 😄 Seja um dos contribuidores<br> <a name="contribuir"></a>
 
-## Stay in touch
+Contribuições são sempre bem-vindas!
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+1. Fork o Projeto
+2. Criar uma Branch (git checkout -b feature/AmazingFeature)
+3. Commit suas alterações (git commit -m 'Add some AmazingFeature)
+4. Push na Branch (git push origin feature/AmazingFeature)
+5. Abra um Pull Request
 
-## License
 
-Nest is [MIT licensed](LICENSE).
+[![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/colored.png)](#licensa)
+
+## 📝 Licença <a name="licenca"></a>
+
+Esse projeto está sob licença [MIT](LICENSE.md).
+
+## :man_astronaut: Mostre seu apoio 
+
+Dê uma ⭐️ se esse projeto te ajudou!
