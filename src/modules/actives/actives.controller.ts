@@ -13,6 +13,13 @@ export class ActivesController {
     return response.status(200).json(tickers);
   }
 
+  @Get()
+  async findAll(@Request() request, @Response() response) {
+    const idUser = request.user.sub;
+    const tickers = await this.activesService.findAll(idUser);
+    return response.status(200).json(tickers);
+  }
+
   @Post()
   async create(
     @Request() request,
