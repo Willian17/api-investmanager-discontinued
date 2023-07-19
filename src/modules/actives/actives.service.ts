@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { MarketService } from './market.service';
 import { CategoryEnum } from '../marks/marks.entity';
 import { AxiosResponse } from 'axios';
@@ -10,6 +14,7 @@ import { AnswersService } from '../answers/answers.service';
 import { ListTickersCryptoResponseDto } from './dtos/ListTickersCryptoResponseDto';
 import { ListTickersResponseDto } from './dtos/ListTickersResponseDto';
 import { MarksService } from '../marks/marks.service';
+import { UpdateActiveRequestDto } from './dtos/UpdateActiveRequestDto';
 
 @Injectable()
 export class ActivesService {
@@ -107,6 +112,62 @@ export class ActivesService {
     }));
     await this.answersService.create(answers);
     return activeCreated;
+  }
+  async update(body: UpdateActiveRequestDto, idActive: string, idUser: string) {
+    const activeExists = await this.activeRepository.findOne({
+      where: { id: idActive, idUser },
+    });
+    if (!activeExists) {
+      throw new NotFoundException('Ativo não encontrado!');
+    }
+    if (activeExists.category === CategoryEnum.RENDA_FIXA) {
+      const active = {
+        name: body.name,
+        amount: body.amount || 1,
+        currentValue: body.currentValue,
+        note: body.note,
+      };
+      await this.activeRepository.update(idActive, active);
+
+      return active;
+    }
+    if (activeExists.category === CategoryEnum.CRIPTO_MOEDA) {
+      const active = {
+        name: body.name,
+        amount: body.amount,
+        note: body.note,
+      };
+      await this.activeRepository.update(idActive, active);
+
+      return active;
+    }
+
+    if (!body.answers) {
+      throw new BadRequestException('Respostas é obrigatório!');
+    }
+
+    const active = {
+      name: body.name,
+      amount: body.amount,
+    };
+
+    await this.activeRepository.update(idActive, active);
+
+    const answers = body.answers.map((answer) => ({
+      ...answer,
+      idActive,
+    }));
+    const answersToUpdate = answers.filter((answer) => answer.id);
+    const answersToCreate = answers.filter((answer) => !answer.id);
+    answersToUpdate.length &&
+      (await this.answersService.update(answersToUpdate));
+
+    answersToCreate.length &&
+      (await this.answersService.create(answersToCreate));
+    return {
+      ...active,
+      answers,
+    };
   }
 
   async findAll(idUser: string) {

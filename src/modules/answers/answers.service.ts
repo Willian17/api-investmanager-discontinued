@@ -15,4 +15,7 @@ export class AnswersService {
     await this.answersRepository.save(answersCreated);
     return answersCreated;
   }
+  update(answers: DeepPartial<Answers>[]) {
+    return this.answersRepository.save(answers);
+  }
 }

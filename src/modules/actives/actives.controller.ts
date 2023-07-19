@@ -1,6 +1,15 @@
-import { Body, Controller, Get, Post, Request, Response } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Request,
+  Response,
+} from '@nestjs/common';
 import { ActivesService } from './actives.service';
 import { CreateActiveRequestDto } from './dtos/CreateActiveRequestDto';
+import { UpdateActiveRequestDto } from './dtos/UpdateActiveRequestDto';
 
 @Controller('actives')
 export class ActivesController {
@@ -28,6 +37,17 @@ export class ActivesController {
   ) {
     const idUser = request.user.sub;
     const active = await this.activesService.create(body, idUser);
+    return response.status(200).json(active);
+  }
+  @Put(':id')
+  async update(
+    @Request() request,
+    @Body() body: UpdateActiveRequestDto,
+    @Response() response,
+  ) {
+    const { id } = request.params;
+    const idUser = request.user.sub;
+    const active = await this.activesService.update(body, id, idUser);
     return response.status(200).json(active);
   }
 }
