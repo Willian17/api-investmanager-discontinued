@@ -181,6 +181,16 @@ export class ActivesService {
     return active;
   }
 
+  async delete(idActive: string, idUser: string) {
+    const activeExists = await this.activeRepository.findOne({
+      where: { id: idActive, idUser },
+    });
+    if (!activeExists) {
+      throw new NotFoundException('Ativo não encontrado!');
+    }
+    await this.activeRepository.delete(idActive);
+  }
+
   async findAll(idUser: string) {
     const activesDb = await this.activeRepository.query(
       `select ac.id, ac.category, ac.name, ac.amount, AC."currentValue", (case when ac.note is not NULL then ac.note else (COUNT(case when an.response then 1 end)) end) as note

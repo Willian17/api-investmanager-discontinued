@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Post,
   Put,
@@ -58,5 +59,15 @@ export class ActivesController {
     const idUser = request.user.sub;
     const active = await this.activesService.update(body, id, idUser);
     return response.status(200).json(active);
+  }
+
+  @Delete(':id')
+  async delete(@Request() request, @Response() response) {
+    const { id } = request.params;
+    const idUser = request.user.sub;
+    await this.activesService.delete(id, idUser);
+    return response
+      .status(200)
+      .json({ message: 'Ativo deletado com sucesso!' });
   }
 }
