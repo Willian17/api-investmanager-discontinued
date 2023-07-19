@@ -170,6 +170,17 @@ export class ActivesService {
     };
   }
 
+  async findById(idActive: string, idUser: string) {
+    const active = await this.activeRepository.findOne({
+      where: { id: idActive, idUser },
+      relations: ['answers'],
+    });
+    if (!active) {
+      throw new NotFoundException('Ativo não encontrado!');
+    }
+    return active;
+  }
+
   async findAll(idUser: string) {
     const activesDb = await this.activeRepository.query(
       `select ac.id, ac.category, ac.name, ac.amount, AC."currentValue", (case when ac.note is not NULL then ac.note else (COUNT(case when an.response then 1 end)) end) as note

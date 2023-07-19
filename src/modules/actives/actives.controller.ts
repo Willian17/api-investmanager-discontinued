@@ -29,6 +29,14 @@ export class ActivesController {
     return response.status(200).json(tickers);
   }
 
+  @Get(':id')
+  async findOne(@Request() request, @Response() response) {
+    const { id } = request.params;
+    const idUser = request.user.sub;
+    const active = await this.activesService.findById(id, idUser);
+    return response.status(200).json(active);
+  }
+
   @Post()
   async create(
     @Request() request,
@@ -39,6 +47,7 @@ export class ActivesController {
     const active = await this.activesService.create(body, idUser);
     return response.status(200).json(active);
   }
+
   @Put(':id')
   async update(
     @Request() request,
