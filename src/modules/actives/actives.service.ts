@@ -214,12 +214,13 @@ export class ActivesService {
 
     const activesCryptoName = activesDb.filter(filterCrypto).map(getName);
 
-    const response = await this.marketService.getInfoTickers(
-      activesRendaVariavelName,
-    );
-    const responseCrypto = await this.marketService.getInfoTickersCrypto(
-      activesCryptoName,
-    );
+    const response =
+      activesRendaVariavelName.length &&
+      (await this.marketService.getInfoTickers(activesRendaVariavelName));
+
+    const responseCrypto =
+      activesCryptoName.length &&
+      (await this.marketService.getInfoTickersCrypto(activesCryptoName));
 
     const activesInfoComplete = this.getInfoActives(
       activesDb,
@@ -241,10 +242,10 @@ export class ActivesService {
     responseCrypto: AxiosResponse<ListTickersCryptoResponseDto, any>,
   ) {
     return actives.map((active) => {
-      const findActiveVariavel = response.data.results.find(
+      const findActiveVariavel = response?.data?.results.find(
         (info) => info.symbol === active.name,
       );
-      const findActiveCrypto = responseCrypto.data.coins.find(
+      const findActiveCrypto = responseCrypto?.data?.coins.find(
         (info) => info.coin === active.name,
       );
       const infoActive = findActiveVariavel || findActiveCrypto;
@@ -266,9 +267,10 @@ export class ActivesService {
     const marks = await this.marksService.findAll(idUser);
 
     return actives.map((active) => {
-      const recommend =
-        (active.note / sumNoteCategories[active.category]) *
-        marks.find((mark) => mark.category === active.category)?.percentage;
+      const recommend = active.note
+        ? (active.note / sumNoteCategories[active.category]) *
+          marks.find((mark) => mark.category === active.category)?.percentage
+        : 0;
       const percentage = (active.currentValue / totalEquity) * 100;
       return {
         ...active,
