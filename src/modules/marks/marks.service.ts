@@ -21,70 +21,17 @@ export class MarksService {
       .addGroupBy('marks.id')
       .getRawMany();
 
-    const marksCategory = [
-      {
-        id:
-          marks.find(
-            (mark) => mark.marks_category === CategoryEnum.ACOES_NACIONAIS,
-          )?.marks_id || null,
-        category: CategoryEnum.ACOES_NACIONAIS,
+    const marksCategory = Object.values(CategoryEnum).map((category) => {
+      return {
+        category,
         percentage:
-          +marks.find(
-            (mark) => mark.marks_category === CategoryEnum.ACOES_NACIONAIS,
-          )?.marks_percentage || 0,
-      },
-      {
-        id:
-          marks.find(
-            (mark) => mark.marks_category === CategoryEnum.ACOES_INTERNACIONAIS,
-          )?.marks_id || null,
-        category: CategoryEnum.ACOES_INTERNACIONAIS,
-        percentage:
-          +marks.find(
-            (mark) => mark.marks_category === CategoryEnum.ACOES_INTERNACIONAIS,
-          )?.marks_percentage || 0,
-      },
-      {
-        id:
-          marks.find(
-            (mark) => mark.marks_category === CategoryEnum.FUNDOS_IMOBILIARIOS,
-          )?.marks_id || null,
-        category: CategoryEnum.FUNDOS_IMOBILIARIOS,
-        percentage:
-          +marks.find(
-            (mark) => mark.marks_category === CategoryEnum.FUNDOS_IMOBILIARIOS,
-          )?.marks_percentage || 0,
-      },
-      {
-        id:
-          marks.find((mark) => mark.marks_category === CategoryEnum.REITS)
-            ?.marks_id || null,
-        category: CategoryEnum.REITS,
-        percentage:
-          +marks.find((mark) => mark.marks_category === CategoryEnum.REITS)
+          +marks.find((mark) => mark.marks_category === category)
             ?.marks_percentage || 0,
-      },
-      {
         id:
-          marks.find((mark) => mark.marks_category === CategoryEnum.RENDA_FIXA)
-            ?.marks_id || null,
-        category: CategoryEnum.RENDA_FIXA,
-        percentage:
-          +marks.find((mark) => mark.marks_category === CategoryEnum.RENDA_FIXA)
-            ?.marks_percentage || 0,
-      },
-      {
-        id:
-          marks.find(
-            (mark) => mark.marks_category === CategoryEnum.CRIPTO_MOEDA,
-          )?.marks_id || null,
-        category: CategoryEnum.CRIPTO_MOEDA,
-        percentage:
-          +marks.find(
-            (mark) => mark.marks_category === CategoryEnum.CRIPTO_MOEDA,
-          )?.marks_percentage || 0,
-      },
-    ];
+          marks.find((mark) => mark.marks_category === category)?.marks_id ||
+          undefined,
+      };
+    });
 
     return marksCategory;
   }
