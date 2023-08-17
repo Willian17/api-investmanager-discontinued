@@ -7,6 +7,11 @@ export default () => {
       host: process.env.DATABASE_HOST,
       port: parseInt(process.env.DATABASE_PORT, 10) || 5432,
     },
+    redis: {
+      port: process.env.REDIS_PORT,
+      host: process.env.REDIS_HOST,
+      ttl: process.env.CACHE_TTL,
+    },
     jwt: {
       secret: process.env.SECRET_KEY,
     },

@@ -11,6 +11,7 @@ import {
 import { ActivesService } from './actives.service';
 import { CreateActiveRequestDto } from './dtos/CreateActiveRequestDto';
 import { UpdateActiveRequestDto } from './dtos/UpdateActiveRequestDto';
+import { ProvideInvestmentRequestDto } from './dtos/ProvideInvestmentRequestDto';
 
 @Controller('actives')
 export class ActivesController {
@@ -59,6 +60,17 @@ export class ActivesController {
     const idUser = request.user.sub;
     const active = await this.activesService.update(body, id, idUser);
     return response.status(200).json(active);
+  }
+
+  @Post('/calculate-provide')
+  async provideInvestment(
+    @Request() request,
+    @Body() body: ProvideInvestmentRequestDto,
+    @Response() response,
+  ) {
+    const idUser = request.user.sub;
+    const actives = await this.activesService.calculateProvide(body, idUser);
+    return response.status(200).json(actives);
   }
 
   @Delete(':id')

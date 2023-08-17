@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { MarketService } from './market.service';
 import { CategoryEnum } from '../marks/marks.entity';
-import { AxiosResponse } from 'axios';
 import { CreateActiveRequestDto } from './dtos/CreateActiveRequestDto';
 import { Actives } from './actives.entity';
 import { Repository } from 'typeorm';
@@ -15,6 +14,17 @@ import { ListTickersCryptoResponseDto } from './dtos/ListTickersCryptoResponseDt
 import { ListTickersResponseDto } from './dtos/ListTickersResponseDto';
 import { MarksService } from '../marks/marks.service';
 import { UpdateActiveRequestDto } from './dtos/UpdateActiveRequestDto';
+import { ProvideInvestmentRequestDto } from './dtos/ProvideInvestmentRequestDto';
+
+interface ActiveInfo {
+  id: string;
+  category: CategoryEnum;
+  name: string;
+  amount: string;
+  currentValue: number;
+  note: number;
+  price: number;
+}
 
 @Injectable()
 export class ActivesService {
@@ -33,7 +43,7 @@ export class ActivesService {
       throw new BadRequestException('Categoria é obrigatório!');
     }
     try {
-      let response: AxiosResponse;
+      let response: any;
       if (category.toUpperCase() === CategoryEnum.CRIPTO_MOEDA) {
         response = await this.marketService.getAvailableTickerCrypto(ticker);
       } else {
@@ -170,6 +180,31 @@ export class ActivesService {
     };
   }
 
+  async calculateProvide(body: ProvideInvestmentRequestDto, idUser) {
+    const actives = await this.getActivesFromUser(idUser);
+
+    const totalEquity = actives.reduce((acc, active) => {
+      return acc + active.currentValue;
+    }, 0);
+
+    const totalValueCategory = Object.values(CategoryEnum).map((category) => {
+      const totalValue = actives
+        .filter((active) => active.category === category)
+        .reduce((acc, active) => {
+          return acc + active.currentValue;
+        }, 0);
+      return {
+        category,
+        totalValue,
+        percentage: (totalValue / totalEquity) * 100,
+      };
+    });
+
+    console.log(totalValueCategory);
+
+    return actives;
+  }
+
   async findById(idActive: string, idUser: string) {
     const active = await this.activeRepository.findOne({
       where: { id: idActive, idUser },
@@ -192,6 +227,17 @@ export class ActivesService {
   }
 
   async findAll(idUser: string) {
+    const activesInfoComplete = await this.getActivesFromUser(idUser);
+
+    const activesCalculates = await this.getMetricsActives(
+      activesInfoComplete,
+      idUser,
+    );
+
+    return activesCalculates;
+  }
+
+  async getActivesFromUser(idUser): Promise<ActiveInfo[]> {
     const activesDb = await this.activeRepository.query(
       `select ac.id, ac.category, ac.name, ac.amount, AC."currentValue", (case when ac.note is not NULL then ac.note else (COUNT(case when an.response then 1 end)) end) as note
     from actives ac
@@ -228,24 +274,19 @@ export class ActivesService {
       responseCrypto,
     );
 
-    const activesCalculates = await this.getMetricsActives(
-      activesInfoComplete,
-      idUser,
-    );
-
-    return activesCalculates;
+    return activesInfoComplete as any;
   }
 
   private getInfoActives(
     actives: Actives[],
-    response: AxiosResponse<ListTickersResponseDto, any>,
-    responseCrypto: AxiosResponse<ListTickersCryptoResponseDto, any>,
+    response: ListTickersResponseDto,
+    responseCrypto: ListTickersCryptoResponseDto,
   ) {
     return actives.map((active) => {
-      const findActiveVariavel = response?.data?.results.find(
+      const findActiveVariavel = response?.results.find(
         (info) => info.symbol === active.name,
       );
-      const findActiveCrypto = responseCrypto?.data?.coins.find(
+      const findActiveCrypto = responseCrypto?.coins.find(
         (info) => info.coin === active.name,
       );
       const infoActive = findActiveVariavel || findActiveCrypto;
@@ -259,7 +300,7 @@ export class ActivesService {
     });
   }
 
-  private async getMetricsActives(actives: Actives[], idUser: string) {
+  private async getMetricsActives(actives: ActiveInfo[], idUser: string) {
     const totalEquity = actives.reduce((acc, active) => {
       return acc + active.currentValue;
     }, 0);
@@ -280,7 +321,7 @@ export class ActivesService {
     });
   }
 
-  private calculateNoteCategories(actives: Actives[]) {
+  private calculateNoteCategories(actives: ActiveInfo[]) {
     return Object.values(CategoryEnum).reduce((acc, category) => {
       const sumNote = actives
         .filter((active) => active.category === category)

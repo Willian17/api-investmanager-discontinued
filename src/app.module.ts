@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { CacheModule } from '@nestjs/cache-manager';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './modules/auth/auth.module';
@@ -11,6 +12,7 @@ import { QuestionsModule } from './modules/questions/questions.module';
 import { MarksModule } from './modules/marks/marks.module';
 import { ActivesModule } from './modules/actives/actives.module';
 import { AnswersModule } from './modules/answers/answers.module';
+import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
   imports: [
@@ -18,7 +20,22 @@ import { AnswersModule } from './modules/answers/answers.module';
       load: [configuration],
     }),
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
+      imports: [
+        ConfigModule,
+        CacheModule.registerAsync({
+          imports: [ConfigModule],
+          isGlobal: true,
+          useFactory: async (configService: ConfigService) => {
+            return {
+              store: redisStore,
+              ttl: configService.get('redis.ttl'),
+              host: configService.get('redis.host'),
+              port: configService.get('redis.port'),
+            };
+          },
+          inject: [ConfigService],
+        }),
+      ],
       useFactory: (configService: ConfigService) => {
         return {
           type: 'postgres',
