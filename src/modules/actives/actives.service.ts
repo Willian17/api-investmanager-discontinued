@@ -180,29 +180,79 @@ export class ActivesService {
     };
   }
 
-  async calculateProvide(body: ProvideInvestmentRequestDto, idUser) {
+  async calculateProvide(body: ProvideInvestmentRequestDto, idUser: string) {
+    const contributionValue = body.value;
     const actives = await this.getActivesFromUser(idUser);
 
     const totalEquity = actives.reduce((acc, active) => {
       return acc + active.currentValue;
     }, 0);
 
-    const totalValueCategory = Object.values(CategoryEnum).map((category) => {
+    const contributionCategory = this.calculateContributionByCategory({
+      idUser,
+      actives,
+      contributionValue,
+      totalEquity,
+    });
+
+    return contributionCategory;
+  }
+
+  async calculateContributionByCategory({
+    idUser,
+    actives,
+    contributionValue,
+    totalEquity,
+  }: {
+    idUser: string;
+    actives: ActiveInfo[];
+    contributionValue: number;
+    totalEquity: number;
+  }): Promise<{ category: CategoryEnum; contributionAmount: number }[]> {
+    const totalEquityEnd = totalEquity + contributionValue;
+
+    const marks = await this.marksService.findAll(idUser);
+
+    const categoryInfoComplete = Object.values(CategoryEnum).map((category) => {
       const totalValue = actives
         .filter((active) => active.category === category)
         .reduce((acc, active) => {
           return acc + active.currentValue;
         }, 0);
+
+      const mark = marks.find((mark) => mark.category === category)?.percentage;
+      const markValue = (mark / 100) * totalEquityEnd;
       return {
         category,
+        markPercentage: mark,
         totalValue,
-        percentage: (totalValue / totalEquity) * 100,
+        markValue,
+        contributionAmount: markValue - totalValue,
       };
     });
 
-    console.log(totalValueCategory);
+    const filterCategoryContribute = (category) =>
+      category.contributionAmount > 0;
 
-    return actives;
+    const markPercentageContributeTotal = categoryInfoComplete
+      .filter(filterCategoryContribute)
+      .reduce((acc, category) => acc + category.markPercentage, 0);
+
+    const contributionCategory = categoryInfoComplete
+      .filter(filterCategoryContribute)
+      .map((cat) => {
+        const markPercentageContribution =
+          cat.markPercentage / markPercentageContributeTotal;
+
+        const contributionAmount =
+          markPercentageContribution * contributionValue;
+
+        return {
+          category: cat.category,
+          contributionAmount,
+        };
+      });
+    return contributionCategory;
   }
 
   async findById(idActive: string, idUser: string) {
