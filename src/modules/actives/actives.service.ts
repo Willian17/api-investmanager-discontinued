@@ -16,7 +16,7 @@ import { MarksService } from '../marks/marks.service';
 import { UpdateActiveRequestDto } from './dtos/UpdateActiveRequestDto';
 import { ProvideInvestmentRequestDto } from './dtos/ProvideInvestmentRequestDto';
 
-interface ActiveInfo {
+interface IActiveInfo {
   id: string;
   category: CategoryEnum;
   name: string;
@@ -24,6 +24,12 @@ interface ActiveInfo {
   currentValue: number;
   note: number;
   price: number;
+}
+
+interface IContribuitionCategory {
+  category: CategoryEnum;
+  contributionAmount: number;
+  totalEquity: number;
 }
 
 @Injectable()
@@ -188,29 +194,34 @@ export class ActivesService {
       return acc + active.currentValue;
     }, 0);
 
-    const contributionCategory = this.calculateContributionByCategory({
+    const totalEquityEnd = totalEquity + contributionValue;
+
+    const contributionCategory = await this.calculateContributionByCategory({
       idUser,
       actives,
       contributionValue,
-      totalEquity,
+      totalEquityEnd,
     });
 
-    return contributionCategory;
+    const activesContribution = this.calculateContributionByActive(
+      actives,
+      contributionCategory,
+    );
+
+    return activesContribution;
   }
 
   async calculateContributionByCategory({
     idUser,
     actives,
     contributionValue,
-    totalEquity,
+    totalEquityEnd,
   }: {
     idUser: string;
-    actives: ActiveInfo[];
+    actives: IActiveInfo[];
     contributionValue: number;
-    totalEquity: number;
-  }): Promise<{ category: CategoryEnum; contributionAmount: number }[]> {
-    const totalEquityEnd = totalEquity + contributionValue;
-
+    totalEquityEnd: number;
+  }): Promise<IContribuitionCategory[]> {
     const marks = await this.marksService.findAll(idUser);
 
     const categoryInfoComplete = Object.values(CategoryEnum).map((category) => {
@@ -250,9 +261,70 @@ export class ActivesService {
         return {
           category: cat.category,
           contributionAmount,
+          totalEquity: cat.totalValue + contributionAmount,
         };
       });
     return contributionCategory;
+  }
+
+  calculateContributionByActive(
+    actives: IActiveInfo[],
+    contributionCategories: IContribuitionCategory[],
+  ) {
+    const activesContributeAmount = contributionCategories
+      .map((category) => {
+        const activesByCategory = actives.filter(
+          (active) => active.category === category.category,
+        );
+        const sumNoteActives = activesByCategory.reduce(
+          (acc, active) => acc + +active.note,
+          0,
+        );
+        const activesInfoComplete = activesByCategory.map((active) => {
+          const markPercentage =
+            active.note > 0 ? (active.note / sumNoteActives) * 100 : 0;
+          const markValue = (markPercentage / 100) * category.totalEquity;
+          return {
+            ...active,
+            markPercentage,
+            markValue,
+            contributionAmount: markValue - active.currentValue,
+          };
+        });
+
+        const filterActiveContribute = (active) =>
+          active.contributionAmount > 0;
+
+        const markPercentageContributeTotal = activesInfoComplete
+          .filter(filterActiveContribute)
+          .reduce((acc, active) => acc + active.markPercentage, 0);
+
+        const contributionActive = activesInfoComplete
+          .filter(filterActiveContribute)
+          .map((act) => {
+            const markPercentageContribution =
+              act.markPercentage / markPercentageContributeTotal;
+
+            const contributionAmount =
+              markPercentageContribution * category.contributionAmount;
+
+            return {
+              ...act,
+              category: act.category,
+              contributionAmount,
+              quantity: contributionAmount / act.price,
+            };
+          });
+
+        return contributionActive;
+      })
+      .reduce(
+        (accumulator, activesContributeAmount) =>
+          accumulator.concat(activesContributeAmount),
+        [],
+      );
+
+    return activesContributeAmount;
   }
 
   async findById(idActive: string, idUser: string) {
@@ -287,7 +359,7 @@ export class ActivesService {
     return activesCalculates;
   }
 
-  async getActivesFromUser(idUser): Promise<ActiveInfo[]> {
+  async getActivesFromUser(idUser): Promise<IActiveInfo[]> {
     const activesDb = await this.activeRepository.query(
       `select ac.id, ac.category, ac.name, ac.amount, AC."currentValue", (case when ac.note is not NULL then ac.note else (COUNT(case when an.response then 1 end)) end) as note
     from actives ac
@@ -350,7 +422,7 @@ export class ActivesService {
     });
   }
 
-  private async getMetricsActives(actives: ActiveInfo[], idUser: string) {
+  private async getMetricsActives(actives: IActiveInfo[], idUser: string) {
     const totalEquity = actives.reduce((acc, active) => {
       return acc + active.currentValue;
     }, 0);
@@ -371,7 +443,7 @@ export class ActivesService {
     });
   }
 
-  private calculateNoteCategories(actives: ActiveInfo[]) {
+  private calculateNoteCategories(actives: IActiveInfo[]) {
     return Object.values(CategoryEnum).reduce((acc, category) => {
       const sumNote = actives
         .filter((active) => active.category === category)

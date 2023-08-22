@@ -10,6 +10,7 @@ import { Cache } from 'cache-manager';
 @Injectable()
 export class MarketService {
   url = 'https://brapi.dev/api';
+  TTL_CRYPTO = 600;
   constructor(
     private httpService: HttpService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -50,7 +51,7 @@ export class MarketService {
   }
 
   async getInfoTickers(tickers: string[]): Promise<ListTickersResponseDto> {
-    const key = `quote`;
+    const key = `quote-${tickers.join(',')}`;
 
     const cachedData = await this.cacheManager.get<string>(key);
     if (cachedData) {
@@ -97,7 +98,11 @@ export class MarketService {
         },
       ),
     );
-    await this.cacheManager.set(key, JSON.stringify(response.data));
+    await this.cacheManager.set(
+      key,
+      JSON.stringify(response.data),
+      this.TTL_CRYPTO,
+    );
 
     return response.data;
   }
