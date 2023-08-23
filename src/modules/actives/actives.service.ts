@@ -30,6 +30,7 @@ interface IContribuitionCategory {
   category: CategoryEnum;
   contributionAmount: number;
   totalEquity: number;
+  markPercentageContribution: number;
 }
 
 @Injectable()
@@ -68,7 +69,7 @@ export class ActivesService {
 
       return tickers;
     } catch (error) {
-      if (error.response.status === 404) {
+      if (error?.response?.status === 404) {
         return {
           tickers: [],
         };
@@ -203,7 +204,7 @@ export class ActivesService {
       totalEquityEnd,
     });
 
-    const activesContribution = this.calculateContributionByActive(
+    const activesContribution = this.calculateContributionActiveByCategory(
       actives,
       contributionCategory,
     );
@@ -262,17 +263,19 @@ export class ActivesService {
           category: cat.category,
           contributionAmount,
           totalEquity: cat.totalValue + contributionAmount,
+          markPercentageContribution,
         };
       });
     return contributionCategory;
   }
 
-  calculateContributionByActive(
+  calculateContributionActiveByCategory(
     actives: IActiveInfo[],
     contributionCategories: IContribuitionCategory[],
   ) {
     const activesContributeAmount = contributionCategories
       .map((category) => {
+        //pegar ativos da categoria
         const activesByCategory = actives.filter(
           (active) => active.category === category.category,
         );
@@ -280,6 +283,7 @@ export class ActivesService {
           (acc, active) => acc + +active.note,
           0,
         );
+        // calcular o desbalanciamento
         const activesInfoComplete = activesByCategory.map((active) => {
           const markPercentage =
             active.note > 0 ? (active.note / sumNoteActives) * 100 : 0;
@@ -292,31 +296,74 @@ export class ActivesService {
           };
         });
 
-        const filterActiveContribute = (active) =>
-          active.contributionAmount > 0;
+        // calcular quanto aportar em cada ativo
+        let contributionActives = this.calculateContributionActives(
+          activesInfoComplete,
+          category,
+        );
+        // recalcular aporte caso tenha ativos não aportaveis
+        if (
+          contributionActives.some((active) => active.contributionAmount <= 0)
+        ) {
+          contributionActives = this.calculateContributionActives(
+            contributionActives,
+            category,
+          );
+        }
 
-        const markPercentageContributeTotal = activesInfoComplete
-          .filter(filterActiveContribute)
-          .reduce((acc, active) => acc + active.markPercentage, 0);
+        let leftover =
+          category.contributionAmount -
+          contributionActives.reduce(
+            (acc, active) => acc + active.contributionAmount,
+            0,
+          );
+        // pegar sobra/resto do aporte da categoria e ir aportando em ativos dentro da categoria pela maior nota
+        if (
+          leftover > 0 &&
+          contributionActives.some((active) => active.price <= leftover)
+        ) {
+          while (
+            contributionActives.some((active) => active.price <= leftover)
+          ) {
+            const activesLowLeftover = contributionActives
+              .filter((active) => active.price <= leftover)
+              .sort((a, b) => b.note - a.note);
+            activesLowLeftover.forEach((active) => {
+              if (leftover - active.price >= 0) {
+                leftover -= active.price;
+                const index = contributionActives.findIndex(
+                  (act) => act.id === active.id,
+                );
+                const activeExist = contributionActives[index];
+                contributionActives[index] = {
+                  ...activeExist,
+                  quantity: activeExist.quantity + 1,
+                  contributionAmount:
+                    activeExist.contributionAmount + activeExist.price,
+                };
+              }
+            });
+          }
+          // colocar a sobra em outra categoria pelo maior peso/meta
+        } else if (leftover > 0) {
+          const list = [...contributionCategories];
 
-        const contributionActive = activesInfoComplete
-          .filter(filterActiveContribute)
-          .map((act) => {
-            const markPercentageContribution =
-              act.markPercentage / markPercentageContributeTotal;
+          const categories = list.sort(
+            (a, b) =>
+              b.markPercentageContribution - a.markPercentageContribution,
+          );
+          let index = 0;
+          while (leftover > 0) {
+            const cat = categories[index];
+            if (cat.category != category.category) {
+              cat.contributionAmount += leftover;
+              leftover = 0;
+            }
+            index++;
+          }
+        }
 
-            const contributionAmount =
-              markPercentageContribution * category.contributionAmount;
-
-            return {
-              ...act,
-              category: act.category,
-              contributionAmount,
-              quantity: contributionAmount / act.price,
-            };
-          });
-
-        return contributionActive;
+        return contributionActives;
       })
       .reduce(
         (accumulator, activesContributeAmount) =>
@@ -325,6 +372,49 @@ export class ActivesService {
       );
 
     return activesContributeAmount;
+  }
+
+  calculateContributionActives(
+    activesInfoComplete,
+    category: IContribuitionCategory,
+  ): any[] {
+    // filtrar apenas os ativos aportaveis
+    const filterActiveContribute = (active) => active.contributionAmount > 0;
+
+    const markPercentageContributeTotal = activesInfoComplete
+      .filter(filterActiveContribute)
+      .reduce((acc, active) => acc + active.markPercentage, 0);
+
+    const contributionActive = activesInfoComplete
+      .filter(filterActiveContribute)
+      .map((act) => {
+        const markPercentageContribution =
+          act.markPercentage / markPercentageContributeTotal;
+
+        // valor do aporte
+        const contributionAmount =
+          markPercentageContribution * category.contributionAmount;
+
+        const quantityContributeActive = contributionAmount / act.price;
+        // categorias que não podem aportar fracionado
+        if (
+          act.category === CategoryEnum.ACOES_NACIONAIS ||
+          act.category === CategoryEnum.FUNDOS_IMOBILIARIOS
+        ) {
+          return {
+            ...act,
+            quantity: quantityContributeActive | 0,
+            contributionAmount: (quantityContributeActive | 0) * act.price,
+          };
+        }
+
+        return {
+          ...act,
+          contributionAmount,
+          quantity: quantityContributeActive,
+        };
+      });
+    return contributionActive;
   }
 
   async findById(idActive: string, idUser: string) {
@@ -365,7 +455,9 @@ export class ActivesService {
     from actives ac
     left join answers an on an."idActive" = ac.id
     where ac."idUser" = $1
-    group by ac.id;`,
+    group by ac.id
+    order by ac.category;
+    `,
       [idUser],
     );
 
@@ -390,7 +482,7 @@ export class ActivesService {
       activesCryptoName.length &&
       (await this.marketService.getInfoTickersCrypto(activesCryptoName));
 
-    const activesInfoComplete = this.getInfoActives(
+    const activesInfoComplete = await this.getInfoActives(
       activesDb,
       response,
       responseCrypto,
@@ -399,27 +491,39 @@ export class ActivesService {
     return activesInfoComplete as any;
   }
 
-  private getInfoActives(
+  private async getInfoActives(
     actives: Actives[],
     response: ListTickersResponseDto,
     responseCrypto: ListTickersCryptoResponseDto,
   ) {
-    return actives.map((active) => {
-      const findActiveVariavel = response?.results.find(
-        (info) => info.symbol === active.name,
-      );
-      const findActiveCrypto = responseCrypto?.coins.find(
-        (info) => info.coin === active.name,
-      );
-      const infoActive = findActiveVariavel || findActiveCrypto;
-      const price = infoActive?.regularMarketPrice;
-      return {
-        ...active,
-        currentValue: +active.currentValue || +active.amount * +price,
-        price: +active.currentValue || +price,
-        note: +active.note || 0,
-      };
-    });
+    return await Promise.all(
+      actives.map(async (active) => {
+        const findActiveVariavel = response?.results.find(
+          (info) => info.symbol === active.name,
+        );
+        const findActiveCrypto = responseCrypto?.coins.find(
+          (info) => info.coin === active.name,
+        );
+        const infoActive = findActiveVariavel || findActiveCrypto;
+        let priceCurrency;
+
+        if (infoActive?.currency && infoActive?.currency !== 'BRL') {
+          const response = await this.marketService.getPriceCurrency(
+            infoActive.currency,
+          );
+          priceCurrency = +response?.currency[0]?.bidPrice;
+        }
+        const price = priceCurrency
+          ? +infoActive?.regularMarketPrice * priceCurrency
+          : infoActive?.regularMarketPrice;
+        return {
+          ...active,
+          currentValue: +active.currentValue || +active.amount * +price,
+          price: +active.currentValue || +price,
+          note: +active.note || 0,
+        };
+      }),
+    );
   }
 
   private async getMetricsActives(actives: IActiveInfo[], idUser: string) {

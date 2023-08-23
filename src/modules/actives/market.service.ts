@@ -28,7 +28,7 @@ export class MarketService {
         params: { search: ticker },
       }),
     );
-    await this.cacheManager.set(key, JSON.stringify(response));
+    await this.cacheManager.set(key, JSON.stringify(response.data));
     return response;
   }
 
@@ -48,6 +48,27 @@ export class MarketService {
     await this.cacheManager.set(key, JSON.stringify(response.data));
 
     return response;
+  }
+
+  async getPriceCurrency(currency: string) {
+    const currencyValue = currency.toUpperCase();
+    const key = `currency-${currencyValue}`;
+
+    const cachedData = await this.cacheManager.get<string>(key);
+    if (cachedData) {
+      return JSON.parse(cachedData);
+    }
+
+    const response = await lastValueFrom(
+      this.httpService.get<ListTickersResponseDto>(`${this.url}/v2/currency`, {
+        params: {
+          currency: currencyValue,
+        },
+      }),
+    );
+    await this.cacheManager.set(key, JSON.stringify(response.data));
+
+    return response.data;
   }
 
   async getInfoTickers(tickers: string[]): Promise<ListTickersResponseDto> {
@@ -71,7 +92,6 @@ export class MarketService {
         },
       ),
     );
-    console.log(response.data);
     await this.cacheManager.set(key, JSON.stringify(response.data));
 
     return response.data;
