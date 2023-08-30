@@ -516,11 +516,14 @@ export class ActivesService {
         const price = priceCurrency
           ? +infoActive?.regularMarketPrice * priceCurrency
           : infoActive?.regularMarketPrice;
+
+        const logoUrl = infoActive?.['logourl'];
         return {
           ...active,
           currentValue: +active.currentValue || +active.amount * +price,
           price: +active.currentValue || +price,
           note: +active.note || 0,
+          logoUrl,
         };
       }),
     );
