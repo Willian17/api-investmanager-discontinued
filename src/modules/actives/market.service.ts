@@ -6,15 +6,20 @@ import { AxiosResponse } from 'axios';
 import { ListTickersCryptoResponseDto } from './dtos/ListTickersCryptoResponseDto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MarketService {
   url = 'https://brapi.dev/api';
   TTL_CRYPTO = 600;
+  token = '';
   constructor(
     private httpService: HttpService,
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.token = this.configService.get('market.token');
+  }
 
   async getAvailableTicker(ticker: string): Promise<AxiosResponse> {
     const key = `available-${ticker}`;
@@ -25,7 +30,7 @@ export class MarketService {
 
     const response = await lastValueFrom(
       this.httpService.get(`${this.url}/available`, {
-        params: { search: ticker },
+        params: { search: ticker, token: this.token },
       }),
     );
     await this.cacheManager.set(key, JSON.stringify(response.data));
@@ -42,7 +47,7 @@ export class MarketService {
 
     const response = await lastValueFrom(
       this.httpService.get(`${this.url}/v2/crypto/available`, {
-        params: { search: ticker },
+        params: { search: ticker, token: this.token },
       }),
     );
     await this.cacheManager.set(key, JSON.stringify(response.data));
@@ -63,6 +68,7 @@ export class MarketService {
       this.httpService.get<ListTickersResponseDto>(`${this.url}/v2/currency`, {
         params: {
           currency: currencyValue,
+          token: this.token,
         },
       }),
     );
@@ -71,30 +77,35 @@ export class MarketService {
     return response.data;
   }
 
-  async getInfoTickers(tickers: string[]): Promise<ListTickersResponseDto> {
-    const key = `quote-${tickers.join(',')}`;
+  async getInfoTickers(tickers: string[]): Promise<ListTickersResponseDto[]> {
+    const tickersReponse = Promise.all(
+      tickers.map(async (ticker) => {
+        const key = `quote-${ticker}`;
 
-    const cachedData = await this.cacheManager.get<string>(key);
-    if (cachedData) {
-      return JSON.parse(cachedData);
-    }
-
-    const response = await lastValueFrom(
-      this.httpService.get<ListTickersResponseDto>(
-        `${this.url}/quote/${tickers.join(',')}`,
-        {
-          params: {
-            range: '1d',
-            interval: '1d',
-            fundamental: true,
-            dividends: false,
-          },
-        },
-      ),
+        const cachedData = await this.cacheManager.get<string>(key);
+        if (cachedData) {
+          return JSON.parse(cachedData) as ListTickersResponseDto;
+        }
+        const response = await lastValueFrom(
+          this.httpService.get<ListTickersResponseDto>(
+            `${this.url}/quote/${ticker}`,
+            {
+              params: {
+                range: '1d',
+                interval: '1d',
+                fundamental: true,
+                dividends: false,
+                token: this.token,
+              },
+            },
+          ),
+        );
+        await this.cacheManager.set(key, JSON.stringify(response.data));
+        return response.data;
+      }),
     );
-    await this.cacheManager.set(key, JSON.stringify(response.data));
 
-    return response.data;
+    return tickersReponse;
   }
 
   async getInfoTickersCrypto(
@@ -114,6 +125,7 @@ export class MarketService {
           params: {
             currency: 'BRL',
             coin: tickers.join(','),
+            token: this.token,
           },
         },
       ),
