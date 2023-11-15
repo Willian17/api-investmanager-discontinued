@@ -19,5 +19,6 @@ import { ConfigModule } from '@nestjs/config';
   ],
   providers: [ActivesService, MarketService],
   controllers: [ActivesController],
+  exports: [ActivesService, MarketService],
 })
 export class ActivesModule {}

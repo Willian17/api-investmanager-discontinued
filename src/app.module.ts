@@ -12,6 +12,7 @@ import { QuestionsModule } from './modules/questions/questions.module';
 import { MarksModule } from './modules/marks/marks.module';
 import { ActivesModule } from './modules/actives/actives.module';
 import { AnswersModule } from './modules/answers/answers.module';
+import { ContributeModule } from './modules/contribute/contribute.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
@@ -58,6 +59,7 @@ import * as redisStore from 'cache-manager-redis-store';
     MarksModule,
     ActivesModule,
     AnswersModule,
+    ContributeModule,
   ],
   controllers: [],
   providers: [
