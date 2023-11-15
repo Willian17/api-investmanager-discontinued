@@ -299,7 +299,7 @@ export class ActivesService {
     const sumNoteCategories = this.calculateNoteCategories(actives);
     const marks = await this.marksService.findAll(idUser);
 
-    return actives.map((active) => {
+    const activesInfo = actives.map((active) => {
       const recommend = active.note
         ? (active.note / sumNoteCategories[active.category]) *
           marks.find((mark) => mark.category === active.category)?.percentage
@@ -311,6 +311,10 @@ export class ActivesService {
         percentage,
       };
     });
+    return {
+      totalEquity,
+      actives: activesInfo,
+    };
   }
 
   private calculateNoteCategories(actives: IActiveInfo[]) {
