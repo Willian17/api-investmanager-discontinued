@@ -45,15 +45,32 @@ export class ContributeService {
       contributionCategory,
     );
 
-    console.log({
-      aportar: activesContribution.reduce(
-        (acc, active) => acc + active.contributionAmount,
-        0,
-      ),
-    });
-    console.log({ totalEquity });
+    const totalContribution = activesContribution.reduce(
+      (acc, active) => acc + active.contributionAmount,
+      0,
+    );
 
-    return activesContribution;
+    const totalContributionCategory = Object.values(CategoryEnum)
+      .map((category) => {
+        const totalValue = activesContribution
+          .filter((active) => active.category === category)
+          .reduce((acc, active) => {
+            return acc + active.contributionAmount;
+          }, 0);
+
+        return {
+          category,
+          contributionAmount: totalValue,
+          percentage: (totalValue / totalContribution) * 100,
+        };
+      })
+      .filter((category) => category.contributionAmount > 0);
+
+    return {
+      totalContribution,
+      totalContributionCategory,
+      actives: activesContribution,
+    };
   }
 
   async calculateContributionByCategory({
