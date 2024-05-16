@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -15,11 +15,17 @@ export class AuthService {
   async signIn({ email, password }: SigninRequestDto): Promise<any> {
     const user = await this.usersService.findOne(email);
     if (!user) {
-      throw new BadRequestException('Email ou senha inválidos');
+      throw new BadRequestException(
+        'Email ou senha inválidos',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const isMatchPassword = await bcrypt.compare(password, user.password);
     if (!isMatchPassword) {
-      throw new BadRequestException('Email ou senha inválidos');
+      throw new BadRequestException(
+        'Email ou senha inválidos',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const payload = { name: user.name, sub: user.id };
     return {
@@ -30,7 +36,10 @@ export class AuthService {
   async signUp({ email, password, name }: SignupRequestDto): Promise<any> {
     const user = await this.usersService.findOne(email);
     if (user) {
-      throw new BadRequestException('Email já cadastrado');
+      throw new BadRequestException(
+        'Email já cadastrado',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const passwordCripto = await bcrypt.hash(password, 10);
     const userCreate = await this.usersService.create(

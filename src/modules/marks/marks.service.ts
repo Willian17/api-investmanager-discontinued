@@ -1,4 +1,4 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import { Injectable, BadRequestException, HttpStatus } from '@nestjs/common';
 import { CategoryEnum, Marks } from './marks.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -43,11 +43,17 @@ export class MarksService {
       0,
     );
     if (somaPorcetage > 100) {
-      throw new BadRequestException('Porcentagem total excedida');
+      throw new BadRequestException(
+        'Porcentagem total excedida',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const arrayMarks = marks.map((mark) => {
       if (mark.percentage > 100 || mark.percentage < 0) {
-        throw new BadRequestException('Porcentagem invalida');
+        throw new BadRequestException(
+          'Porcentagem invalida',
+          HttpStatus.BAD_REQUEST,
+        );
       }
       return {
         ...mark,

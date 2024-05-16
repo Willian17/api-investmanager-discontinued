@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 @Injectable()
 export class MarketService {
   url = 'https://brapi.dev/api';
+  urlCrypto = 'https://economia.awesomeapi.com.br/last';
   TTL_CRYPTO = 600;
   token = '';
   constructor(
@@ -50,6 +51,7 @@ export class MarketService {
         params: { search: ticker, token: this.token },
       }),
     );
+
     await this.cacheManager.set(key, JSON.stringify(response.data));
 
     return response;
@@ -65,16 +67,13 @@ export class MarketService {
     }
 
     const response = await lastValueFrom(
-      this.httpService.get<ListTickersResponseDto>(`${this.url}/v2/currency`, {
-        params: {
-          currency: currencyValue,
-          token: this.token,
-        },
-      }),
+      this.httpService.get(`${this.urlCrypto}/${currency}-BRL`),
     );
-    await this.cacheManager.set(key, JSON.stringify(response.data));
 
-    return response.data;
+    const price = +response.data[`${currencyValue}BRL`].bid;
+    await this.cacheManager.set(key, JSON.stringify(price));
+
+    return price;
   }
 
   async getInfoTickers(tickers: string[]): Promise<ListTickersResponseDto[]> {
@@ -83,9 +82,11 @@ export class MarketService {
         const key = `quote-${ticker}`;
 
         const cachedData = await this.cacheManager.get<string>(key);
+
         if (cachedData) {
           return JSON.parse(cachedData) as ListTickersResponseDto;
         }
+
         const response = await lastValueFrom(
           this.httpService.get<ListTickersResponseDto>(
             `${this.url}/quote/${ticker}`,
@@ -100,6 +101,7 @@ export class MarketService {
             },
           ),
         );
+
         await this.cacheManager.set(key, JSON.stringify(response.data));
         return response.data;
       }),
@@ -117,17 +119,9 @@ export class MarketService {
     if (cachedData) {
       return JSON.parse(cachedData);
     }
-
     const response = await lastValueFrom(
       this.httpService.get<ListTickersCryptoResponseDto>(
-        `${this.url}/v2/crypto`,
-        {
-          params: {
-            currency: 'BRL',
-            coin: tickers.join(','),
-            token: this.token,
-          },
-        },
+        `${this.urlCrypto}/${tickers.join('')}-BRL`,
       ),
     );
     await this.cacheManager.set(

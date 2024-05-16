@@ -1,10 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { MarketService } from '../actives/market.service';
-import { AnswersService } from '../answers/answers.service';
 import { MarksService } from '../marks/marks.service';
-import { Actives } from '../actives/actives.entity';
 import { CategoryEnum } from '../marks/marks.entity';
 import { ProvideInvestmentRequestDto } from './dtos/ProvideInvestmentRequestDto';
 import { ActivesService, IActiveInfo } from '../actives/actives.service';
@@ -107,9 +102,19 @@ export class ContributeService {
     const filterCategoryContribute = (category) =>
       category.contributionAmount > 0;
 
+    const filterCategoryNegative = (category) =>
+      category.contributionAmount < 0;
+
     const markPercentageContributeTotal = categoryInfoComplete
       .filter(filterCategoryContribute)
       .reduce((acc, category) => acc + category.markPercentage, 0);
+
+    const negativeAmountValueCategoryTotal =
+      Math.abs(
+        categoryInfoComplete
+          .filter(filterCategoryNegative)
+          .reduce((acc, category) => acc + category.contributionAmount, 0),
+      ) * 0.33;
 
     const contributionCategory = categoryInfoComplete
       .filter(filterCategoryContribute)
@@ -118,7 +123,8 @@ export class ContributeService {
           cat.markPercentage / markPercentageContributeTotal;
 
         const contributionAmountByPercentage =
-          markPercentageContribution * contributionValue;
+          markPercentageContribution *
+          (contributionValue + negativeAmountValueCategoryTotal);
 
         const contributionAmount =
           contributionAmountByPercentage > cat.contributionAmount

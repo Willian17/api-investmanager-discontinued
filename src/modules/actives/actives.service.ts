@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -36,10 +37,16 @@ export class ActivesService {
   ) {}
   async findTicker(ticker: string, category: string) {
     if (!ticker) {
-      throw new BadRequestException('Ticker é obrigatório!');
+      throw new BadRequestException(
+        'Ticker é obrigatório!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     if (!category) {
-      throw new BadRequestException('Categoria é obrigatório!');
+      throw new BadRequestException(
+        'Categoria é obrigatório!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     try {
       let response: any;
@@ -66,7 +73,10 @@ export class ActivesService {
           tickers: [],
         };
       }
-      throw new BadRequestException('Erro ao buscar ticker!');
+      throw new BadRequestException(
+        'Erro ao buscar ticker!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
   }
 
@@ -75,7 +85,10 @@ export class ActivesService {
       where: { name: body.name, category: body.category, idUser },
     });
     if (activeExists) {
-      throw new BadRequestException('Ativo já cadastrado!');
+      throw new BadRequestException(
+        'Ativo já cadastrado!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     if (body.category === CategoryEnum.RENDA_FIXA) {
       const active = this.activeRepository.create({
@@ -104,7 +117,10 @@ export class ActivesService {
     }
 
     if (!body.answers) {
-      throw new BadRequestException('Respostas é obrigatório!');
+      throw new BadRequestException(
+        'Respostas é obrigatório!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const active = this.activeRepository.create({
@@ -152,7 +168,10 @@ export class ActivesService {
     }
 
     if (!body.answers) {
-      throw new BadRequestException('Respostas é obrigatório!');
+      throw new BadRequestException(
+        'Respostas é obrigatório!',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const active = {
@@ -264,22 +283,23 @@ export class ActivesService {
           (info) => info.results[0].symbol === active.name,
         )?.results[0];
 
-        const findActiveCrypto = responseCrypto?.coins?.find(
-          (info) => info.coin === active.name,
-        );
+        const findActiveCrypto =
+          responseCrypto?.BTCBRL?.code === active.name && responseCrypto;
         const infoActive = findActiveVariavel || findActiveCrypto;
-        let priceCurrency;
 
-        if (infoActive?.currency && infoActive?.currency !== 'BRL') {
-          const response = await this.marketService.getPriceCurrency(
-            infoActive.currency,
+        if (infoActive['currency'] && infoActive['currency'] !== 'BRL') {
+          const priceCurrency = await this.marketService.getPriceCurrency(
+            infoActive['currency'],
           );
-          priceCurrency = +response?.currency[0]?.bidPrice;
+          infoActive['regularMarketPrice'] =
+            infoActive['regularMarketPrice'] * priceCurrency;
         }
-        const price = priceCurrency
-          ? +infoActive?.regularMarketPrice * priceCurrency
-          : infoActive?.regularMarketPrice;
 
+        const price = infoActive['regularMarketPrice']
+          ? +infoActive['regularMarketPrice']
+          : infoActive['BTCBRL']
+          ? +infoActive['BTCBRL'].bid
+          : 0;
         const logoUrl = infoActive?.['logourl'];
         return {
           ...active,
@@ -304,6 +324,7 @@ export class ActivesService {
         ? (active.note / sumNoteCategories[active.category]) *
           marks.find((mark) => mark.category === active.category)?.percentage
         : 0;
+
       const percentage = (active.currentValue / totalEquity) * 100;
       return {
         ...active,
