@@ -17,6 +17,6 @@ export default () => {
     },
     market: {
       token: process.env.TOKEN_BRAPI,
-    }
+    },
   };
 };

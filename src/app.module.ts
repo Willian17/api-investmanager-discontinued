@@ -2,17 +2,17 @@ import { Module } from '@nestjs/common';
 import { CacheModule } from '@nestjs/cache-manager';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { AuthModule } from './modules/auth/auth.module';
-import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './application/modules/auth.module';
+import { UsersModule } from './application/modules/users.module';
 import configuration from './config/configuration';
 import { APP_GUARD } from '@nestjs/core';
-import { AuthGuard } from './modules/auth/auth.guard';
+import { AuthGuard } from './application/modules/auth/auth.guard';
 import { JwtModule } from '@nestjs/jwt';
-import { QuestionsModule } from './modules/questions/questions.module';
-import { MarksModule } from './modules/marks/marks.module';
-import { ActivesModule } from './modules/actives/actives.module';
-import { AnswersModule } from './modules/answers/answers.module';
-import { ContributeModule } from './modules/contribute/contribute.module';
+import { QuestionsModule } from './application/modules/questions.module';
+import { MarksModule } from './application/modules/marks.module';
+import { ActivesModule } from './application/modules/actives.module';
+import { AnswersModule } from './application/modules/answers.module';
+import { ContributeModule } from './application/modules/contribute.module';
 import * as redisStore from 'cache-manager-redis-store';
 
 @Module({
