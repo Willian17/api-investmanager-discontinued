@@ -6,15 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../../../application/modules/users/user.entity';
-
-export enum CategoryEnum {
-  ACOES_NACIONAIS = 'AN',
-  ACOES_INTERNACIONAIS = 'AI',
-  FUNDOS_IMOBILIARIOS = 'FI',
-  REITS = 'RT',
-  RENDA_FIXA = 'RF',
-  CRIPTO_MOEDA = 'CM',
-}
+import { CategoryEnum } from '../../../domain/enum/CategoryEnum';
 
 @Entity({ name: 'marks' })
 export class Marks {

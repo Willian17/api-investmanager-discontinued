@@ -1,11 +1,9 @@
 import { Injectable, BadRequestException, HttpStatus } from '@nestjs/common';
-import {
-  CategoryEnum,
-  Marks,
-} from '../../../adapters/output/marks/marks.entity';
+import { Marks } from '../../../adapters/output/marks/marks.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UpdateMarksRequestDTO } from '../../../adapters/input/controllers/marks/dtos/UpdateMarksRequestDTO';
+import { CategoryEnum } from '../../../domain/enum/CategoryEnum';
 
 @Injectable()
 export class MarksService {

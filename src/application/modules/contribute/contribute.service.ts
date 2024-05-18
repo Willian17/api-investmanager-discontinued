@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { MarksService } from '../marks/marks.service';
-import { CategoryEnum } from '../../../adapters/output/marks/marks.entity';
 import { ProvideInvestmentRequestDto } from './dtos/ProvideInvestmentRequestDto';
 import { ActivesService, IActiveInfo } from '../actives/actives.service';
+import { CategoryEnum } from '../../../domain/enum/CategoryEnum';
 
 interface IContribuitionCategory {
   category: CategoryEnum;

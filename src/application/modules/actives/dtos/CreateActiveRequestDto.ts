@@ -1,4 +1,4 @@
-import { CategoryEnum } from 'src/adapters/output/marks/marks.entity';
+import { CategoryEnum } from '../../../../domain/enum/CategoryEnum';
 
 export interface CreateActiveRequestDto {
   category: CategoryEnum;

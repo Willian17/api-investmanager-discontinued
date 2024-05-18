@@ -7,8 +7,8 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { User } from '../users/user.entity';
-import { CategoryEnum } from '../../../adapters/output/marks/marks.entity';
 import { Answers } from '../answers/answers.entify';
+import { CategoryEnum } from '../../../domain/enum/CategoryEnum';
 
 @Entity({ name: 'actives' })
 export class Actives {

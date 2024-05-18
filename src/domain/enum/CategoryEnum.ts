@@ -1,0 +1,8 @@
+export enum CategoryEnum {
+  ACOES_NACIONAIS = 'AN',
+  ACOES_INTERNACIONAIS = 'AI',
+  FUNDOS_IMOBILIARIOS = 'FI',
+  REITS = 'RT',
+  RENDA_FIXA = 'RF',
+  CRIPTO_MOEDA = 'CM',
+}

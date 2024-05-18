@@ -1,4 +1,4 @@
-import { CategoryEnum } from '../../../../output/marks/marks.entity';
+import { CategoryEnum } from '../../../../../domain/enum/CategoryEnum';
 
 export interface UpdateMarksRequestDTO {
   id?: string;

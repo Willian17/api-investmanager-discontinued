@@ -5,7 +5,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { MarketService } from './market.service';
-import { CategoryEnum } from '../../../adapters/output/marks/marks.entity';
 import { CreateActiveRequestDto } from './dtos/CreateActiveRequestDto';
 import { Actives } from './actives.entity';
 import { Repository } from 'typeorm';
@@ -15,6 +14,7 @@ import { ListTickersCryptoResponseDto } from './dtos/ListTickersCryptoResponseDt
 import { ListTickersResponseDto } from './dtos/ListTickersResponseDto';
 import { MarksService } from '../marks/marks.service';
 import { UpdateActiveRequestDto } from './dtos/UpdateActiveRequestDto';
+import { CategoryEnum } from '../../../domain/enum/CategoryEnum';
 
 export interface IActiveInfo {
   id: string;
