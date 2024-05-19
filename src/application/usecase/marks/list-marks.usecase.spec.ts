@@ -1,45 +1,39 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ListMarksUseCase } from './list-marks.usecase';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Marks } from '../../../adapters/output/marks/marks.entity';
 import { CategoryEnum } from '../../../domain/enum/CategoryEnum';
+import { MarksAccessDataPort } from 'src/application/port/output/marks-access-data.port';
+import Mark from 'src/domain/model/mark';
 
-const mockMarks = [
+const mockMarks: Mark[] = [
   {
-    marks_category: CategoryEnum.ACOES_INTERNACIONAIS,
-    marks_percentage: 50,
-    marks_id: '8988',
+    id: '123',
+    idUser: '123',
+    category: CategoryEnum.ACOES_INTERNACIONAIS,
+    percentage: 50,
   },
   {
-    marks_category: CategoryEnum.ACOES_NACIONAIS,
-    marks_percentage: 50,
-    marks_id: '2554',
+    id: 'asdasd8',
+    idUser: '123',
+    category: CategoryEnum.ACOES_NACIONAIS,
+    percentage: 50,
   },
 ];
-
-// Mock repository
-const mockMarksRepository = {
-  createQueryBuilder: jest.fn(() => ({
-    select: jest.fn().mockReturnThis(),
-    addSelect: jest.fn().mockReturnThis(),
-    where: jest.fn().mockReturnThis(),
-    addGroupBy: jest.fn().mockReturnThis(),
-    groupBy: jest.fn().mockReturnThis(),
-    getRawMany: jest.fn().mockResolvedValue(mockMarks),
-  })),
-};
 
 describe('ListMarksUseCase', () => {
   let listMarksUseCase: ListMarksUseCase;
   const IDUSER = '123';
+
+  const mockMarksAccessDataPort = {
+    findAllByUser: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ListMarksUseCase,
         {
-          provide: getRepositoryToken(Marks),
-          useValue: mockMarksRepository,
+          provide: MarksAccessDataPort,
+          useValue: mockMarksAccessDataPort,
         },
       ],
     }).compile();
@@ -52,15 +46,7 @@ describe('ListMarksUseCase', () => {
   });
 
   it('should return marks empty elements', async () => {
-    mockMarksRepository.createQueryBuilder = jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      addSelect: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      groupBy: jest.fn().mockReturnThis(),
-      addGroupBy: jest.fn().mockReturnThis(),
-      getRawMany: jest.fn().mockResolvedValue([]),
-    }));
-
+    mockMarksAccessDataPort.findAllByUser.mockResolvedValue([]);
     const result = await listMarksUseCase.execute(IDUSER);
     expect(result).toEqual([
       {
@@ -97,26 +83,18 @@ describe('ListMarksUseCase', () => {
   });
 
   it('should return array of marks', async () => {
-    mockMarksRepository.createQueryBuilder = jest.fn(() => ({
-      select: jest.fn().mockReturnThis(),
-      addSelect: jest.fn().mockReturnThis(),
-      where: jest.fn().mockReturnThis(),
-      groupBy: jest.fn().mockReturnThis(),
-      addGroupBy: jest.fn().mockReturnThis(),
-      getRawMany: jest.fn().mockResolvedValue(mockMarks),
-    }));
-
+    mockMarksAccessDataPort.findAllByUser.mockResolvedValue(mockMarks);
     const result = await listMarksUseCase.execute(IDUSER);
     expect(result).toEqual([
       {
         category: CategoryEnum.ACOES_NACIONAIS,
         percentage: 50,
-        id: '2554',
+        id: 'asdasd8',
       },
       {
         category: CategoryEnum.ACOES_INTERNACIONAIS,
         percentage: 50,
-        id: '8988',
+        id: '123',
       },
       {
         category: CategoryEnum.FUNDOS_IMOBILIARIOS,
