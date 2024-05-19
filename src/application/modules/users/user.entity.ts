@@ -1,4 +1,4 @@
-import { Marks } from '../../../adapters/output/marks/marks.entity';
+import { MarkEntity } from '../../../adapters/output/marks/marks.entity';
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
 import { Question } from '../questions/question.entity';
 import { Actives } from '../actives/actives.entity';
@@ -20,8 +20,8 @@ export class User {
   @OneToMany(() => Question, (question) => question.user)
   questions: Question[];
 
-  @OneToMany(() => Marks, (marks) => marks.user)
-  marks: Marks[];
+  @OneToMany(() => MarkEntity, (marks) => marks.user)
+  marks: MarkEntity[];
 
   @OneToMany(() => Actives, (actives) => actives.user)
   actives: Actives[];

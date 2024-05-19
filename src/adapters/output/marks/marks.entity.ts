@@ -9,7 +9,7 @@ import { User } from '../../../application/modules/users/user.entity';
 import { CategoryEnum } from '../../../domain/enum/CategoryEnum';
 
 @Entity({ name: 'marks' })
-export class Marks {
+export class MarkEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

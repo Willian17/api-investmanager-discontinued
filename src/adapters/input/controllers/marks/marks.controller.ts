@@ -1,13 +1,5 @@
 import { UpdateMarksRequestDTO } from './dtos/UpdateMarksRequestDTO';
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Put,
-  Request,
-  Response,
-} from '@nestjs/common';
+import { Body, Controller, Get, Put, Request, Response } from '@nestjs/common';
 import { MarksService } from '../../../../application/modules/marks/marks.service';
 
 @Controller('marks')
