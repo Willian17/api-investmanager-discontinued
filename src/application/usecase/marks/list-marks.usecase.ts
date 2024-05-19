@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Marks } from 'src/adapters/output/marks/marks.entity';
 import { MarksAccessDataPort } from 'src/application/port/output/marks-access-data.port';
 import { CategoryEnum } from 'src/domain/enum/CategoryEnum';
-import { Repository } from 'typeorm';
 
 @Injectable()
 export class ListMarksUseCase {
