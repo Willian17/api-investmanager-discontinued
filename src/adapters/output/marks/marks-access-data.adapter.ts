@@ -34,4 +34,8 @@ export class MarksAccessDataAdapter implements MarksAccessDataPort {
       };
     });
   }
+
+  async update(marks: Mark[]): Promise<void> {
+    await this.marksRepository.save(marks);
+  }
 }
