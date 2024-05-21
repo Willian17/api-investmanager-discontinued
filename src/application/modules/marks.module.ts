@@ -22,6 +22,11 @@ import { MarksAccessDataPort } from '../port/output/marks-access-data.port';
     },
   ],
   controllers: [MarksController],
-  exports: [MarksService],
+  exports: [
+    {
+      provide: ListMarksUseCasePort,
+      useClass: ListMarksUseCase,
+    },
+  ],
 })
 export class MarksModule {}

@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { MarksService } from '../marks/marks.service';
 import { ProvideInvestmentRequestDto } from './dtos/ProvideInvestmentRequestDto';
 import { ActivesService, IActiveInfo } from '../actives/actives.service';
 import { CategoryEnum } from '../../../domain/enum/CategoryEnum';
+import { ListMarksUseCasePort } from 'src/application/port/input/list-marks.usecase.port';
 
 interface IContribuitionCategory {
   category: CategoryEnum;
@@ -15,7 +15,7 @@ interface IContribuitionCategory {
 export class ContributeService {
   constructor(
     private activesService: ActivesService,
-    private marksService: MarksService,
+    private listMarksUseCase: ListMarksUseCasePort,
   ) {}
 
   async calculateProvide(body: ProvideInvestmentRequestDto, idUser: string) {
@@ -79,7 +79,7 @@ export class ContributeService {
     contributionValue: number;
     totalEquityEnd: number;
   }): Promise<IContribuitionCategory[]> {
-    const marks = await this.marksService.findAll(idUser);
+    const marks = await this.listMarksUseCase.execute(idUser);
 
     const categoryInfoComplete = Object.values(CategoryEnum).map((category) => {
       const totalValue = actives

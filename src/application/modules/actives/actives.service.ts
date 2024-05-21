@@ -12,9 +12,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { AnswersService } from '../answers/answers.service';
 import { ListTickersCryptoResponseDto } from './dtos/ListTickersCryptoResponseDto';
 import { ListTickersResponseDto } from './dtos/ListTickersResponseDto';
-import { MarksService } from '../marks/marks.service';
 import { UpdateActiveRequestDto } from './dtos/UpdateActiveRequestDto';
 import { CategoryEnum } from '../../../domain/enum/CategoryEnum';
+import { ListMarksUseCasePort } from 'src/application/port/input/list-marks.usecase.port';
 
 export interface IActiveInfo {
   id: string;
@@ -33,7 +33,7 @@ export class ActivesService {
     private activeRepository: Repository<Actives>,
     private marketService: MarketService,
     private answersService: AnswersService,
-    private marksService: MarksService,
+    private listMarksUseCase: ListMarksUseCasePort,
   ) {}
   async findTicker(ticker: string, category: string) {
     if (!ticker) {
@@ -317,7 +317,7 @@ export class ActivesService {
       return acc + active.currentValue;
     }, 0);
     const sumNoteCategories = this.calculateNoteCategories(actives);
-    const marks = await this.marksService.findAll(idUser);
+    const marks = await this.listMarksUseCase.execute(idUser);
 
     const activesInfo = actives.map((active) => {
       const recommend = active.note
