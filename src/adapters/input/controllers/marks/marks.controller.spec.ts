@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MarksController } from './marks.controller';
-import { MarksService } from 'src/application/modules/marks/marks.service';
 import { ListMarksUseCasePort } from 'src/application/port/input/list-marks.usecase.port';
 import { MarksResponseDTO } from './dtos/ListMarksResponseDTO';
 import { CategoryEnum } from 'src/domain/enum/CategoryEnum';
@@ -33,10 +32,6 @@ describe('MarksController', () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MarksController],
       providers: [
-        {
-          provide: MarksService,
-          useValue: jest.fn(),
-        },
         {
           provide: ListMarksUseCasePort,
           useValue: mockListMarksUseCase,
