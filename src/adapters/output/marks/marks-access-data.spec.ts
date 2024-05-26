@@ -65,6 +65,7 @@ describe('MarksAccessDataAdapter', () => {
           provide: getRepositoryToken(MarkEntity),
           useFactory: () => ({
             createQueryBuilder: jest.fn().mockReturnValue(queryBuilderMock),
+            save: jest.fn().mockResolvedValue({}),
           }),
         },
       ],
@@ -98,5 +99,27 @@ describe('MarksAccessDataAdapter', () => {
     });
     const result = await marksAccessDataAdapter.findAllByUser('id_user');
     expect(result).toEqual(marks);
+  });
+
+  it('should updated marks', async () => {
+    const idUser = '123';
+
+    const marksSave = [
+      {
+        id: '123',
+        category: CategoryEnum.ACOES_NACIONAIS,
+        percentage: 50,
+        idUser,
+      },
+      {
+        id: '1234',
+        category: CategoryEnum.ACOES_INTERNACIONAIS,
+        percentage: 50,
+        idUser,
+      },
+    ];
+
+    await marksAccessDataAdapter.update(marksSave);
+    expect(mockMarksRepository.save).toHaveBeenCalledWith(marksSave);
   });
 });
