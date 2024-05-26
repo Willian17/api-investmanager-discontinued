@@ -4,6 +4,8 @@ import { MarksService } from 'src/application/modules/marks/marks.service';
 import { ListMarksUseCasePort } from 'src/application/port/input/list-marks.usecase.port';
 import { MarksResponseDTO } from './dtos/ListMarksResponseDTO';
 import { CategoryEnum } from 'src/domain/enum/CategoryEnum';
+import { UpdateMarksRequestDTO } from './dtos/UpdateMarksRequestDTO';
+import { UpdateMarksUseCasePort } from 'src/application/port/input/update-marks.usecase.port';
 
 const marksMock: MarksResponseDTO[] = [
   {
@@ -24,6 +26,9 @@ describe('MarksController', () => {
   const mockListMarksUseCase = {
     execute: jest.fn(),
   };
+  const mockUpdateMarkUseCase = {
+    execute: jest.fn(),
+  };
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [MarksController],
@@ -35,6 +40,10 @@ describe('MarksController', () => {
         {
           provide: ListMarksUseCasePort,
           useValue: mockListMarksUseCase,
+        },
+        {
+          provide: UpdateMarksUseCasePort,
+          useValue: mockUpdateMarkUseCase,
         },
       ],
     }).compile();
@@ -73,5 +82,40 @@ describe('MarksController', () => {
     expect(mockListMarksUseCase.execute).toHaveBeenCalledWith(idUser);
     expect(mockResponse.status).toHaveBeenCalledWith(200);
     expect(mockResponse.json).toHaveBeenCalledWith(marksMock);
+  });
+
+  it('update marks for user ', async () => {
+    const idUser = '1';
+
+    const mockResponse = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    const updateMarksRequestDTO: UpdateMarksRequestDTO[] = [
+      {
+        id: '1',
+        category: CategoryEnum.ACOES_INTERNACIONAIS,
+        percentage: 50,
+      },
+      {
+        id: '2',
+        category: CategoryEnum.ACOES_NACIONAIS,
+        percentage: 50,
+      },
+    ];
+    await marksController.update(
+      { user: { sub: idUser } },
+      updateMarksRequestDTO,
+      mockResponse,
+    );
+
+    expect(mockUpdateMarkUseCase.execute).toHaveBeenCalledWith(
+      updateMarksRequestDTO,
+      idUser,
+    );
+    expect(mockResponse.status).toHaveBeenCalledWith(200);
+    expect(mockResponse.json).toHaveBeenCalledWith({
+      message: 'Metas atualizadas com sucesso!',
+    });
   });
 });

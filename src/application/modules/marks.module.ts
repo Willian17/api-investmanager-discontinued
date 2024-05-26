@@ -7,6 +7,8 @@ import { ListMarksUseCasePort } from '../port/input/list-marks.usecase.port';
 import { ListMarksUseCase } from '../usecase/marks/list-marks.usecase';
 import { MarksAccessDataAdapter } from 'src/adapters/output/marks/marks-access-data.adapter';
 import { MarksAccessDataPort } from '../port/output/marks-access-data.port';
+import { UpdateMarksUseCase } from '../usecase/marks/update-mark.usecase';
+import { UpdateMarksUseCasePort } from '../port/input/update-marks.usecase.port';
 
 @Module({
   imports: [TypeOrmModule.forFeature([MarkEntity])],
@@ -15,6 +17,10 @@ import { MarksAccessDataPort } from '../port/output/marks-access-data.port';
     {
       provide: ListMarksUseCasePort,
       useClass: ListMarksUseCase,
+    },
+    {
+      provide: UpdateMarksUseCasePort,
+      useClass: UpdateMarksUseCase,
     },
     {
       provide: MarksAccessDataPort,

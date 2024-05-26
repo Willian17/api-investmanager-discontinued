@@ -5,7 +5,7 @@ import { MarksAccessDataPort } from 'src/application/port/output/marks-access-da
 import Mark from 'src/domain/model/mark';
 
 @Injectable()
-export class UpdateMarkUseCase extends UpdateMarksUseCasePort {
+export class UpdateMarksUseCase extends UpdateMarksUseCasePort {
   constructor(private marksAccessDataPort: MarksAccessDataPort) {
     super();
   }

@@ -1,14 +1,14 @@
 import { UpdateMarksRequestDTO } from './dtos/UpdateMarksRequestDTO';
 import { Body, Controller, Get, Put, Request, Response } from '@nestjs/common';
-import { MarksService } from '../../../../application/modules/marks/marks.service';
 import { MarksResponseDTO } from './dtos/ListMarksResponseDTO';
 import { ListMarksUseCasePort } from 'src/application/port/input/list-marks.usecase.port';
+import { UpdateMarksUseCasePort } from 'src/application/port/input/update-marks.usecase.port';
 
 @Controller('marks')
 export class MarksController {
   constructor(
-    private marksService: MarksService,
     private listMarksUseCase: ListMarksUseCasePort,
+    private updateMarksUseCase: UpdateMarksUseCasePort,
   ) {}
 
   @Get()
@@ -25,10 +25,9 @@ export class MarksController {
     @Response() response,
   ) {
     const idUser = request.user.sub;
-    const marksUpdate = await this.marksService.uptade(
-      updateMarksRequestDTO,
-      idUser,
-    );
-    return response.status(200).json(marksUpdate);
+    await this.updateMarksUseCase.execute(updateMarksRequestDTO, idUser);
+    return response.status(200).json({
+      message: 'Metas atualizadas com sucesso!',
+    });
   }
 }

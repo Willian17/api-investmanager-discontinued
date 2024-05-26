@@ -1,12 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { UpdateMarkUseCase } from './update-mark.usecase';
+import { UpdateMarksUseCase } from './update-mark.usecase';
 import { UpdateMarksRequestDTO } from 'src/adapters/input/controllers/marks/dtos/UpdateMarksRequestDTO';
 import { CategoryEnum } from 'src/domain/enum/CategoryEnum';
 import { BadRequestException, HttpStatus } from '@nestjs/common';
 import { MarksAccessDataPort } from 'src/application/port/output/marks-access-data.port';
 
 describe('UpdateMarkUseCase', () => {
-  let updateMarksUseCase: UpdateMarkUseCase;
+  let updateMarksUseCase: UpdateMarksUseCase;
 
   const mockMarksAccessDataPort = {
     findAllByUser: jest.fn(),
@@ -16,7 +16,7 @@ describe('UpdateMarkUseCase', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        UpdateMarkUseCase,
+        UpdateMarksUseCase,
         {
           provide: MarksAccessDataPort,
           useValue: mockMarksAccessDataPort,
@@ -24,10 +24,10 @@ describe('UpdateMarkUseCase', () => {
       ],
     }).compile();
 
-    updateMarksUseCase = module.get<UpdateMarkUseCase>(UpdateMarkUseCase);
+    updateMarksUseCase = module.get<UpdateMarksUseCase>(UpdateMarksUseCase);
   });
   it('should be defined', () => {
-    expect(UpdateMarkUseCase).toBeDefined();
+    expect(UpdateMarksUseCase).toBeDefined();
   });
 
   it('should throw error if percentage total is greater than 100', async () => {
