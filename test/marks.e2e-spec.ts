@@ -1,21 +1,16 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
-import { AppModule } from './../src/app.module';
+import { dropTestDatabase } from './setup-e2e';
 
 describe('MarksController (e2e)', () => {
-  let app: INestApplication;
-
-  beforeEach(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
-
-    app = moduleFixture.createNestApplication();
-    await app.init();
-  });
-
-  it('(GET) /marks ', () => {
-    return request(app.getHttpServer()).get('/marks').expect(200);
+  afterAll(async () => {
+    await dropTestDatabase();
+  }, 30000);
+  it('(GET) /marks ', async () => {
+    console.log(global.token);
+    const response = await global
+      .request()
+      .get('/marks')
+      .set('Authorization', `Bearer ${global.token}`);
+    expect(response.status).toBe(200);
+    expect(response.body).toBeDefined();
   });
 });

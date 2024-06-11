@@ -19,6 +19,7 @@ import * as redisStore from 'cache-manager-redis-store';
   imports: [
     ConfigModule.forRoot({
       load: [configuration],
+      envFilePath: process.env.NODE_ENV === 'test' ? '.env.test' : '.env',
     }),
     TypeOrmModule.forRootAsync({
       imports: [
@@ -38,6 +39,7 @@ import * as redisStore from 'cache-manager-redis-store';
         }),
       ],
       useFactory: (configService: ConfigService) => {
+        console.log(configService.get('database.name'));
         return {
           type: 'postgres',
           host: configService.get('database.host'),
